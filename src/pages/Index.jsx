@@ -1,8 +1,27 @@
 import { Container, Text, VStack, Spinner, Alert, AlertIcon } from "@chakra-ui/react";
-import { useEvents } from "../integrations/supabase/index.js";
+import { supabase } from "../integrations/supabase/index.js";
+import { useState, useEffect } from "react";
 
 const Index = () => {
-  const { data: events, error, isLoading } = useEvents();
+  const [events, setEvents] = useState([]);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        let { data, error } = await supabase.from('events').select('*');
+        if (error) throw error;
+        setEvents(data);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   if (isLoading) {
     return (
@@ -27,7 +46,7 @@ const Index = () => {
     <Container centerContent maxW="container.md" height="100vh" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
       <VStack spacing={4}>
         <Text fontSize="2xl">Events</Text>
-        {events.map(event => (
+        {events.map((event) => (
           <Text key={event.id}>{event.name}</Text>
         ))}
       </VStack>
