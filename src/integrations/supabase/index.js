@@ -96,3 +96,5 @@ export const useAddVenue = () => {
         },
     });
 };
+
+export { supabase };
